@@ -23,8 +23,9 @@ def generate_launch_description():
     rsp = IncludeLaunchDescription(
                 PythonLaunchDescriptionSource([os.path.join(
                     get_package_share_directory(package_name),'launch','rsp.launch.py'
-                )]), launch_arguments={'use_sim_time': 'true'}.items()
+                )]), launch_arguments={'use_sim_time': 'true', 'use_ros2 control': 'false'}.items()
     )
+    gazebo_params_file = os.path.join(get_package_share_directory(package_name),'config','gazebo_params.yaml')  
     
     world = LaunchConfiguration('world')
 
@@ -39,6 +40,12 @@ def generate_launch_description():
                 PythonLaunchDescriptionSource([os.path.join(
                     get_package_share_directory('ros_gz_sim'), 'launch', 'gz_sim.launch.py')]),
                     launch_arguments={'gz_args': ['-r -v4 ', world], 'on_exit_shutdown': 'true'}.items()
+             )
+    # Bao gồm file launch của Gazebo, được cung cấp bởi package gazebo_ros
+    gazebo = IncludeLaunchDescription(
+                PythonLaunchDescriptionSource([os.path.join(
+                    get_package_share_directory('gazebo_ros'), 'launch', 'gazebo.launch.py')]),
+                    launch_arguments={'extra_gazebo_args': '--ros-args --params-file ' + gazebo_params_file}.items()
              )
 
     # Run the spawner node from the ros_gz_sim package. The entity name doesn't really matter if you only have a single robot.
